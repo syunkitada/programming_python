@@ -1,0 +1,52 @@
+version: "3"
+services:
+  host1:
+    hostname: host1.example.com
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - "${HOME}/.ssh/authorized_keys:${HOME}/.ssh/authorized_keys"
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/shadow:/etc/shadow:ro
+      - /etc/group:/etc/group:ro
+    networks:
+      localnet:
+        ipv4_address: 10.100.100.2
+    entrypoint: bash -c "chown ${SUDO_UID}:${SUDO_GID} ${HOME} &&  /usr/sbin/sshd -D"
+  host2:
+    hostname: host2.example.com
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - "${HOME}/.ssh/authorized_keys:${HOME}/.ssh/authorized_keys"
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/shadow:/etc/shadow:ro
+      - /etc/group:/etc/group:ro
+    networks:
+      localnet:
+        ipv4_address: 10.100.100.3
+    entrypoint: bash -c "chown ${SUDO_UID}:${SUDO_GID} ${HOME} &&  /usr/sbin/sshd -D"
+  host3:
+    hostname: host3.example.com
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - "${HOME}/.ssh/authorized_keys:${HOME}/.ssh/authorized_keys"
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/shadow:/etc/shadow:ro
+      - /etc/group:/etc/group:ro
+    networks:
+      localnet:
+        ipv4_address: 10.100.100.4
+    entrypoint: bash -c "chown ${SUDO_UID}:${SUDO_GID} ${HOME} &&  /usr/sbin/sshd -D"
+
+networks:
+  localnet:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.100.100.0/24
