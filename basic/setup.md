@@ -41,3 +41,17 @@ $ vim requirements.txt
 
 $ pip install -r requirements.txt
 ```
+
+- 上記の簡易版として各プロジェクトごとに（依存がある場合は）Makefile に環境構築処理を書いておき、以下のコマンドで構築できるようにします
+
+```
+$ make env
+$ source venv/bin/activate
+```
+
+## 開発環境の補足
+
+- linter, formatter には、black がオススメです
+  - https://github.com/psf/black
+  - https://black.readthedocs.io/en/stable/integrations/editors.html
+  - django とかもこれを使ってる

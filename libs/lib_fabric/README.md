@@ -24,14 +24,14 @@
 
 ```
 $ make env
-
-$ ssh 10.100.100.2 hostname
-host1.example.com
-
 $ source venv/bin/activate
 
 $ fab -l
 ...
+
+# テスト環境にsshできることを確認する
+$ ssh 10.100.100.2 hostname
+host1.example.com
 
 # テストが終わったら以下を実行して環境を破棄する
 $ make clean
