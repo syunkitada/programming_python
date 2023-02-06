@@ -51,7 +51,33 @@ $ source venv/bin/activate
 
 ## 開発環境の補足
 
-- linter, formatter には、black がオススメです
-  - https://github.com/psf/black
-  - https://black.readthedocs.io/en/stable/integrations/editors.html
-  - django とかもこれを使ってる
+- linter
+  - flake8
+  - 設定ファイルは、pyproject.toml ではなく、tox.ini, setup.cfg, .pep8, .flake8 のいずれか
+- formatter
+  - black
+    - https://github.com/psf/black
+    - https://black.readthedocs.io/en/stable/integrations/editors.html
+    - django とかもこれを使ってる
+    - 設定ファイルは、setup.cfg ではなく、pyproject.toml なので注意
+  - isort
+    - https://pycqa.github.io/isort/
+    - import 分をソートしてくれる
+    - black と併用すると良い
+  - max-line-length について
+    - 既存の制限(2023/03/06 時点)
+      - PEP8 は、79 文字
+      - black は、88 文字
+      - 昔の Django は、119 文字
+        - https://github.com/django/django/blob/stable/3.2.x/setup.cfg#L64
+        - [昔の GitHub の横幅が 119 文字のため](https://github.com/django/django/blob/stable/3.2.x/docs/internals/contributing/writing-code/coding-style.txt#L52-L58)
+          - 今の GitHub は 119 文字というわけではないので気にしなくてよい
+        - 今の Django は black の 88 文字にしてる
+          - 119 文字の時は black は使われておらず、black 導入時にこれに合わせたと思われる
+      - pycharm や vscode は、120 文字
+    - 考え方
+      - チームで合意が取れてばなんでもよいが長すぎはやめたほうがよい(最大でも 120 が妥当と思われる)
+        - 視覚障碍者を考慮するのであれば、100 文字を超えると作業が難しくなるらしいので、最大でも 99 文字に抑えるとよい
+      - 基本的には画面にファイルを二つ横に並べて、左にある程度のスペースが残るぐらいが理想と思われる
+        - black の 88 文字も、一般解像度でのファイル横並びや、差分レビューを考慮した長さである
+      - 悩むぐらいなら、とりあえず black にあわせておくのがよい
