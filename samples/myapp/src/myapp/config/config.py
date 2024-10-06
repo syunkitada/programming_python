@@ -1,6 +1,7 @@
 import configparser
+import os
 
-CONFIG_FILE = "/etc/myapp/myapp.conf"
+CONFIG_FILE = os.environ.get("CONFIG_FILE", "/etc/myapp/myapp.conf")
 
 
 def get_logger():
