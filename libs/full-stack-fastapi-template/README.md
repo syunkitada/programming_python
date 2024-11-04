@@ -2,81 +2,86 @@
 
 ```
 $ git clone https://github.com/fastapi/full-stack-fastapi-template.git sample1
-```
-
-myrc
-
-```
-export SECRET_KEY=secretkey
-export FIRST_SUPERUSER_PASSWORD=adminpass
-export FRONTEND_HOST=http://192.168.10.121:5173
-export VITE_API_URL=http://192.168.10.121:8000
-
-export POSTGRES_SERVER=localhost
-export POSTGRES_PORT=5432
-export POSTGRES_DB=app
-export POSTGRES_USER=postgres
-export POSTGRES_PASSWORD=changethis
-```
-
-```
-$ source myrc
-```
-
-## Start postgres
-
-```
-$ sudo docker compose up db
-```
-
-## Start frontend
-
-```
-$ vim package.json
-<    "dev": "vite",
->    "dev": "vite --host 0.0.0.0",
-```
-
-```
 $ cd sample1
-$ npm install
-$ npm run dev
+$ rm -rf .git
 ```
 
-## Start backend
+## 1. DB(postgres)の起動
 
-## DBの初期化
+```
+$ sudo docker compose up db -d
+
+# DBのデータを削除する場合は以下を実行して、再度upを実行してください
+$ sudo docker compose down db -v
+```
+
+## 2. backendのセットアップ
 
 ```
 $ cd backend
+
+$ uv sync
+
+$ source .venv/bin/activate
+```
+
+DBの初期化
+
+```
+$ export FIRST_SUPERUSER=admin@example.com
+$ export FIRST_SUPERUSER_PASSWORD=adminpass
+
 $ python app/backend_pre_start.py
-
-# Run migrations
 $ alembic upgrade head
-
-# Create initial data in DB
 $ python app/initial_data.py
 ```
 
-## Start backend
+backend用の環境変数の設定
 
 ```
-$ sudo docker compose stop backend
+export SECRET_KEY=secretkey
+export FRONTEND_HOST=http://192.168.10.121:5173
+```
 
-$ cd backend
+backendの起動
 
-$ python3 -m venv .venv
-$ pip install .
+```
 $ fastapi dev --host 0.0.0.0 app/main.py
 ```
 
-## Settings
+## 3. frontendのセットアップ
 
-- Pydantic Settings
-  - 環境変数をそのまま設定として利用できる仕組み
-  - backend/app/core/config.py
-  - 参考
-    - [Pydantic Settingsのすゝめ](https://qiita.com/inetcpl/items/b4146b9e8e1adad239d8)
+```
+$ cd frontend
+```
+
+外部からアクセスできるように、viteの起動パラメータを修正します。
+
+```
+$ sed -i 's/: "vite",/: "vite --host 0.0.0.0",/g' package.json
+```
+
+```
+$ npm install
+```
+
+```
+export SECRET_KEY=secretkey
+export VITE_API_URL=http://192.168.10.121:8000
+```
+
+```
+$ npm run dev
+```
+
+## 設定ファイル
+
+- 設定値の管理には Pydantic を利用しており、環境変数をそのまま設定として利用しています
+- 参考
+  - https://docs.pydantic.dev/latest/
+  - [Pydantic Settingsのすゝめ](https://qiita.com/inetcpl/items/b4146b9e8e1adad239d8)
+
+backendの設定(backend/app/core/config.py)
 
 ```
   26 class Settings(BaseSettings):
