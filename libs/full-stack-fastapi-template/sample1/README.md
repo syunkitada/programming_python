@@ -1,239 +1,173 @@
-# Full Stack FastAPI Template
+# full-stack-fastapi-template: sample1
 
-<a href="https://github.com/fastapi/full-stack-fastapi-template/actions?query=workflow%3ATest" target="_blank"><img src="https://github.com/fastapi/full-stack-fastapi-template/workflows/Test/badge.svg" alt="Test"></a>
-<a href="https://coverage-badge.samuelcolvin.workers.dev/redirect/fastapi/full-stack-fastapi-template" target="_blank"><img src="https://coverage-badge.samuelcolvin.workers.dev/fastapi/full-stack-fastapi-template.svg" alt="Coverage"></a>
+## 初期化設定の手順
 
-## Technology Stack and Features
+### 1. templateをgit cloneする
 
-- ⚡ [**FastAPI**](https://fastapi.tiangolo.com) for the Python backend API.
-    - 🧰 [SQLModel](https://sqlmodel.tiangolo.com) for the Python SQL database interactions (ORM).
-    - 🔍 [Pydantic](https://docs.pydantic.dev), used by FastAPI, for the data validation and settings management.
-    - 💾 [PostgreSQL](https://www.postgresql.org) as the SQL database.
-- 🚀 [React](https://react.dev) for the frontend.
-    - 💃 Using TypeScript, hooks, Vite, and other parts of a modern frontend stack.
-    - 🎨 [Chakra UI](https://chakra-ui.com) for the frontend components.
-    - 🤖 An automatically generated frontend client.
-    - 🧪 [Playwright](https://playwright.dev) for End-to-End testing.
-    - 🦇 Dark mode support.
-- 🐋 [Docker Compose](https://www.docker.com) for development and production.
-- 🔒 Secure password hashing by default.
-- 🔑 JWT (JSON Web Token) authentication.
-- 📫 Email based password recovery.
-- ✅ Tests with [Pytest](https://pytest.org).
-- 📞 [Traefik](https://traefik.io) as a reverse proxy / load balancer.
-- 🚢 Deployment instructions using Docker Compose, including how to set up a frontend Traefik proxy to handle automatic HTTPS certificates.
-- 🏭 CI (continuous integration) and CD (continuous deployment) based on GitHub Actions.
-
-### Dashboard Login
-
-[![API docs](img/login.png)](https://github.com/fastapi/full-stack-fastapi-template)
-
-### Dashboard - Admin
-
-[![API docs](img/dashboard.png)](https://github.com/fastapi/full-stack-fastapi-template)
-
-### Dashboard - Create User
-
-[![API docs](img/dashboard-create.png)](https://github.com/fastapi/full-stack-fastapi-template)
-
-### Dashboard - Items
-
-[![API docs](img/dashboard-items.png)](https://github.com/fastapi/full-stack-fastapi-template)
-
-### Dashboard - User Settings
-
-[![API docs](img/dashboard-user-settings.png)](https://github.com/fastapi/full-stack-fastapi-template)
-
-### Dashboard - Dark Mode
-
-[![API docs](img/dashboard-dark.png)](https://github.com/fastapi/full-stack-fastapi-template)
-
-### Interactive API Documentation
-
-[![API docs](img/docs.png)](https://github.com/fastapi/full-stack-fastapi-template)
-
-## How To Use It
-
-You can **just fork or clone** this repository and use it as is.
-
-✨ It just works. ✨
-
-### How to Use a Private Repository
-
-If you want to have a private repository, GitHub won't allow you to simply fork it as it doesn't allow changing the visibility of forks.
-
-But you can do the following:
-
-- Create a new GitHub repo, for example `my-full-stack`.
-- Clone this repository manually, set the name with the name of the project you want to use, for example `my-full-stack`:
-
-```bash
-git clone git@github.com:fastapi/full-stack-fastapi-template.git my-full-stack
+```
+$ git clone https://github.com/fastapi/full-stack-fastapi-template.git sample1
+$ cd sample1
 ```
 
-- Enter into the new directory:
+originを書き換える。
 
-```bash
-cd my-full-stack
+```
+$ git remote set-url origin git@github.com:octocat/my-full-stack.git
 ```
 
-- Set the new origin to your new repository, copy it from the GitHub interface, for example:
+もしくは、.gitを削除して初期化する。
 
-```bash
-git remote set-url origin git@github.com:octocat/my-full-stack.git
+```
+$ rm -rf .git
 ```
 
-- Add this repo as another "remote" to allow you to get updates later:
+### 2. DB(postgres)の起動
 
-```bash
-git remote add upstream git@github.com:fastapi/full-stack-fastapi-template.git
+```
+$ sudo docker compose up db -d
+
+# DBのデータを削除する場合は以下を実行して、再度upを実行してください
+$ sudo docker compose down db -v
 ```
 
-- Push the code to your new repository:
+### 3. backendのセットアップ
 
-```bash
-git push -u origin master
+```
+$ cd backend
+
+$ uv sync
+
+$ source .venv/bin/activate
 ```
 
-### Update From the Original Template
+DBの初期化
 
-After cloning the repository, and after doing changes, you might want to get the latest changes from this original template.
+```
+$ export FIRST_SUPERUSER=admin@example.com
+$ export FIRST_SUPERUSER_PASSWORD=adminpass
 
-- Make sure you added the original repository as a remote, you can check it with:
-
-```bash
-git remote -v
-
-origin    git@github.com:octocat/my-full-stack.git (fetch)
-origin    git@github.com:octocat/my-full-stack.git (push)
-upstream    git@github.com:fastapi/full-stack-fastapi-template.git (fetch)
-upstream    git@github.com:fastapi/full-stack-fastapi-template.git (push)
+$ python app/backend_pre_start.py
+$ alembic upgrade head
+$ python app/initial_data.py
 ```
 
-- Pull the latest changes without merging:
+backend用の環境変数の設定
 
-```bash
-git pull --no-commit upstream master
+```
+export SECRET_KEY=secretkey
+export FRONTEND_HOST=http://192.168.10.121:5173
 ```
 
-This will download the latest changes from this template without committing them, that way you can check everything is right before committing.
+backendの起動
 
-- If there are conflicts, solve them in your editor.
-
-- Once you are done, commit the changes:
-
-```bash
-git merge --continue
+```
+$ fastapi dev --host 0.0.0.0 app/main.py
 ```
 
-### Configure
+### 4. frontendのセットアップ
 
-You can then update configs in the `.env` files to customize your configurations.
-
-Before deploying it, make sure you change at least the values for:
-
-- `SECRET_KEY`
-- `FIRST_SUPERUSER_PASSWORD`
-- `POSTGRES_PASSWORD`
-
-You can (and should) pass these as environment variables from secrets.
-
-Read the [deployment.md](./deployment.md) docs for more details.
-
-### Generate Secret Keys
-
-Some environment variables in the `.env` file have a default value of `changethis`.
-
-You have to change them with a secret key, to generate secret keys you can run the following command:
-
-```bash
-python -c "import secrets; print(secrets.token_urlsafe(32))"
+```
+$ cd frontend
 ```
 
-Copy the content and use that as password / secret key. And run that again to generate another secure key.
+外部からアクセスできるように、viteの起動パラメータを修正します。
 
-## How To Use It - Alternative With Copier
-
-This repository also supports generating a new project using [Copier](https://copier.readthedocs.io).
-
-It will copy all the files, ask you configuration questions, and update the `.env` files with your answers.
-
-### Install Copier
-
-You can install Copier with:
-
-```bash
-pip install copier
+```
+$ sed -i 's/: "vite",/: "vite --host 0.0.0.0",/g' package.json
 ```
 
-Or better, if you have [`pipx`](https://pipx.pypa.io/), you can run it with:
-
-```bash
-pipx install copier
+```
+$ npm install
 ```
 
-**Note**: If you have `pipx`, installing copier is optional, you could run it directly.
-
-### Generate a Project With Copier
-
-Decide a name for your new project's directory, you will use it below. For example, `my-awesome-project`.
-
-Go to the directory that will be the parent of your project, and run the command with your project's name:
-
-```bash
-copier copy https://github.com/fastapi/full-stack-fastapi-template my-awesome-project --trust
+```
+export SECRET_KEY=secretkey
+export VITE_API_URL=http://192.168.10.121:8000
 ```
 
-If you have `pipx` and you didn't install `copier`, you can run it directly:
-
-```bash
-pipx run copier copy https://github.com/fastapi/full-stack-fastapi-template my-awesome-project --trust
+```
+$ npm run dev
 ```
 
-**Note** the `--trust` option is necessary to be able to execute a [post-creation script](https://github.com/fastapi/full-stack-fastapi-template/blob/master/.copier/update_dotenv.py) that updates your `.env` files.
+## 設定ファイルについて
 
-### Input Variables
+- 設定値の管理には Pydantic を利用しており、環境変数をそのまま設定として利用しています
+- 参考
+  - https://docs.pydantic.dev/latest/
+  - [Pydantic Settingsのすゝめ](https://qiita.com/inetcpl/items/b4146b9e8e1adad239d8)
 
-Copier will ask you for some data, you might want to have at hand before generating the project.
+backendの設定(backend/app/core/config.py)
 
-But don't worry, you can just update any of that in the `.env` files afterwards.
+```
+  26 class Settings(BaseSettings):
+  27     model_config = SettingsConfigDict(
+  28         # Use top level .env file (one level above ./backend/)
+  29         env_file="../.env",
+  30         env_ignore_empty=True,
+  31         extra="ignore",
+  32     )
+  33     API_V1_STR: str = "/api/v1"
+  34     SECRET_KEY: str = secrets.token_urlsafe(32)
+  35     # 60 minutes * 24 hours * 8 days = 8 days
+  36     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
+  37     FRONTEND_HOST: str = "http://localhost:5173"
+  38     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
+  ...
+  97     FIRST_SUPERUSER: str
+  98     FIRST_SUPERUSER_PASSWORD: str
+...
+ 122 settings = Settings()  # type: ignore
+```
 
-The input variables, with their default values (some auto generated) are:
+## backendのテスト
 
-- `project_name`: (default: `"FastAPI Project"`) The name of the project, shown to API users (in .env).
-- `stack_name`: (default: `"fastapi-project"`) The name of the stack used for Docker Compose labels and project name (no spaces, no periods) (in .env).
-- `secret_key`: (default: `"changethis"`) The secret key for the project, used for security, stored in .env, you can generate one with the method above.
-- `first_superuser`: (default: `"admin@example.com"`) The email of the first superuser (in .env).
-- `first_superuser_password`: (default: `"changethis"`) The password of the first superuser (in .env).
-- `smtp_host`: (default: "") The SMTP server host to send emails, you can set it later in .env.
-- `smtp_user`: (default: "") The SMTP server user to send emails, you can set it later in .env.
-- `smtp_password`: (default: "") The SMTP server password to send emails, you can set it later in .env.
-- `emails_from_email`: (default: `"info@example.com"`) The email account to send emails from, you can set it later in .env.
-- `postgres_password`: (default: `"changethis"`) The password for the PostgreSQL database, stored in .env, you can generate one with the method above.
-- `sentry_dsn`: (default: "") The DSN for Sentry, if you are using it, you can set it later in .env.
+```
+$ cd backend
+$ python app/tests_pre_start.py
+$ ./scripts/test.sh
 
-## Backend Development
-
-Backend docs: [backend/README.md](./backend/README.md).
-
-## Frontend Development
-
-Frontend docs: [frontend/README.md](./frontend/README.md).
-
-## Deployment
-
-Deployment docs: [deployment.md](./deployment.md).
-
-## Development
-
-General development docs: [development.md](./development.md).
-
-This includes using Docker Compose, custom local domains, `.env` configurations, etc.
-
-## Release Notes
-
-Check the file [release-notes.md](./release-notes.md).
-
-## License
-
-The Full Stack FastAPI Template is licensed under the terms of the MIT license.
+============================================================== 54 passed, 5 warnings in 16.24s ===============================================================
++ coverage report --show-missing
+Name                                          Stmts   Miss  Cover   Missing
+---------------------------------------------------------------------------
+app/__init__.py                                   0      0   100%
+app/api/__init__.py                               0      0   100%
+app/api/deps.py                                  35      4    89%   36-37, 43, 45
+app/api/main.py                                   7      0   100%
+app/api/routes/__init__.py                        0      0   100%
+app/api/routes/items.py                          57      4    93%   27-39
+app/api/routes/login.py                          57      9    84%   37, 88, 93, 110-122
+app/api/routes/users.py                         102      0   100%
+app/api/routes/utils.py                          14      4    71%   20-26, 31
+app/backend_pre_start.py                         23      7    70%   27-29, 33-35, 39
+app/core/__init__.py                              0      0   100%
+app/core/config.py                               70      4    94%   21-23, 109
+app/core/db.py                                   10      0   100%
+app/core/security.py                             16      0   100%
+app/crud.py                                      40      0   100%
+app/initial_data.py                              14     14     0%   1-23
+app/main.py                                      14      1    93%   15
+app/models.py                                    60      0   100%
+app/tests/__init__.py                             0      0   100%
+app/tests/api/__init__.py                         0      0   100%
+app/tests/api/routes/__init__.py                  0      0   100%
+app/tests/api/routes/test_items.py               81      0   100%
+app/tests/api/routes/test_login.py               50      0   100%
+app/tests/api/routes/test_users.py              263      0   100%
+app/tests/conftest.py                            30      0   100%
+app/tests/crud/__init__.py                        0      0   100%
+app/tests/crud/test_user.py                      72      0   100%
+app/tests/scripts/__init__.py                     0      0   100%
+app/tests/scripts/test_backend_pre_start.py      16      2    88%   24-25
+app/tests/scripts/test_test_pre_start.py         16      2    88%   24-25
+app/tests/utils/__init__.py                       0      0   100%
+app/tests/utils/item.py                          13      0   100%
+app/tests/utils/user.py                          30      1    97%   46
+app/tests/utils/utils.py                         15      0   100%
+app/tests_pre_start.py                           23      7    70%   27-29, 33-35, 39
+app/utils.py                                     64      7    89%   48-49, 53, 59-65
+---------------------------------------------------------------------------
+TOTAL                                          1192     66    94%
++ coverage html --title coverage
+Wrote HTML report to htmlcov/index.html
+```
